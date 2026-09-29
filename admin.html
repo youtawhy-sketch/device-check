@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Admin</title>
+<style>
+body{margin:0;background:#0f172a;color:#fff;font-family:Arial;padding:20px}
+.wrap{max-width:1000px;margin:auto} h1{margin-top:0}
+table{width:100%;border-collapse:collapse;background:#1e293b;border-radius:12px;overflow:hidden}
+th,td{padding:11px;border-bottom:1px solid #334155;text-align:left;font-size:14px}
+th{color:#93c5fd}.muted{color:#94a3b8}
+button{padding:10px 14px;border:0;border-radius:9px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📊 Dashboard</h1>
+<p class="muted">Data hanya ditampilkan di halaman admin ini.</p>
+<button onclick="load()">Refresh</button>
+<div style="overflow:auto;margin-top:15px">
+<table><thead><tr><th>Waktu</th><th>OS/Platform</th><th>Battery</th><th>Charging</th><th>Screen</th><th>Browser/User Agent</th></tr></thead>
+<tbody id="rows"></tbody></table>
+</div>
+</div>
+<script>
+async function load(){
+ const r=await fetch("/api/device"); const items=await r.json();
+ rows.innerHTML=items.reverse().map(x=>`<tr>
+ <td>${new Date(x.time).toLocaleString()}</td>
+ <td>${esc(x.platform)}</td>
+ <td>${x.battery==null?"Tidak tersedia":x.battery+"%"}</td>
+ <td>${x.charging==null?"-":x.charging?"Ya":"Tidak"}</td>
+ <td>${esc(x.screen)}</td>
+ <td>${esc(x.userAgent)}</td>
+ </tr>`).join("");
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+load();
+</script>
+</body>
+</html>

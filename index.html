@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cek Perangkat</title>
+<style>
+body{margin:0;background:#0f172a;color:#fff;font-family:Arial;min-height:100vh;display:grid;place-items:center}
+.card{width:min(420px,90%);background:#1e293b;padding:24px;border-radius:18px;text-align:center}
+button{width:100%;padding:14px;border:0;border-radius:12px;background:#3b82f6;color:#fff;font-weight:bold}
+.small{color:#94a3b8;font-size:13px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>🔍 Cek Perangkat</h2>
+<p class="small">Untuk melanjutkan, halaman ini akan mengirim informasi perangkat yang tersedia dari browser, seperti sistem operasi dan informasi baterai jika didukung.</p>
+<button id="ok">Saya Setuju</button>
+<p id="status" class="small"></p>
+</div>
+<script>
+const API="/api/device";
+document.getElementById("ok").onclick=async()=>{
+  const b=("getBattery" in navigator)?await navigator.getBattery().catch(()=>null):null;
+  const data={
+    userAgent:navigator.userAgent,
+    platform:navigator.platform||"",
+    language:navigator.language||"",
+    screen:`${screen.width}x${screen.height}`,
+    battery:b?Math.round(b.level*100):null,
+    charging:b?b.charging:null,
+    consent:true,
+    time:new Date().toISOString()
+  };
+  document.getElementById("ok").disabled=true;
+  document.getElementById("status").textContent="Terima kasih. Data yang tersedia sudah dikirim.";
+  try{
+    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+  }catch(e){
+    document.getElementById("status").textContent="Data tidak dapat dikirim.";
+  }
+};
+</script>
+</body>
+</html>
